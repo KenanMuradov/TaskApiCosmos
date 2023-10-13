@@ -32,12 +32,21 @@ namespace TaskApiCosmos.Controllers
             var url = _storageManager.GetSignedUrl(user.ProfilePhoto);
             return Ok(url);
         }
-        [AllowAnonymous]
-        [HttpGet("get")]
-        public IActionResult Get()
+
+        [HttpPut("changeProfilePicture")]
+        public async Task<ActionResult> ChangePPAsync(IFormFile file, string email)
         {
-            var users = _context.Users?.ToList();
-            return Ok(users);
+            var user = await _userService.FindUserByEmailAsync(email);
+            if (user is null)
+                return BadRequest();
+            var id = await _storageManager.UploadFileAsync(file.OpenReadStream(), file.FileName, file.ContentType);
+
+            await _storageManager.DeleteFileAsync(user.ProfilePhoto);
+            user.ProfilePhoto = id;
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
