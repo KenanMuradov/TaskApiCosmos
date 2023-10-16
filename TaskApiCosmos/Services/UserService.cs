@@ -48,6 +48,7 @@ namespace TaskApiCosmos.Services
 
                 var user = new User()
                 {
+                    Id=Guid.NewGuid().ToString(),
                     Name = model.Name,
                     Surname = model.Surname,
                     Email = model.Email,
